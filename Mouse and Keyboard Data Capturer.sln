@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.26730.10
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{FDA745D9-7D37-41C6-B2DD-BA5278EB98D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CapturerService", "Services\CapturerService.csproj", "{2DD2FE04-9F55-4F52-A8C4-599F595A112A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Clickstreamer", "Services\Clickstreamer.csproj", "{2DD2FE04-9F55-4F52-A8C4-599F595A112A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

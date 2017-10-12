@@ -1,16 +1,13 @@
-﻿namespace Capturer
+﻿namespace Clickstreamer
 {
     using System.Windows;
     using Clickstreamer.Win32;
 
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
-            InitializeComponent();
+            this.InitializeComponent();
 
            //  Mouse.MouseAction += Mouse_MouseAction;
             Keyboard.KeyboardAction += Keyboard_KeyboardAction1;

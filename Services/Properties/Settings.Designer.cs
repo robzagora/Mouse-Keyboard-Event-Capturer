@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Capturer.Properties
+namespace Clickstreamer.Properties
 {
 
 

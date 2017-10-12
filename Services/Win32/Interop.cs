@@ -2,7 +2,6 @@
 {
     using System;
     using System.ComponentModel;
-    using System.Diagnostics;
     using System.Runtime.InteropServices;
 
     public static class Interop
@@ -14,18 +13,22 @@
 
         public static IntPtr SetHook(Func<IntPtr> hookCreator)
         {
-            using (Process curProcess = Process.GetCurrentProcess())
-            using (ProcessModule curModule = curProcess.MainModule)
+            IntPtr hook;
+            try
             {
-                IntPtr hook = hookCreator();
-
-                if (hook == IntPtr.Zero)
-                {
-                    throw new Win32Exception(message: "Invalid hook handle");
-                }
-
-                return hook;
+                hook = hookCreator();
             }
+            catch
+            {
+                throw;
+            }
+
+            if (hook == IntPtr.Zero)
+            {
+                throw new Win32Exception(message: "Invalid hook handle");
+            }
+
+            return hook;
         }
 
         [DllImport(Interop.User32Module, CharSet = CharSet.Auto, SetLastError = true)]
