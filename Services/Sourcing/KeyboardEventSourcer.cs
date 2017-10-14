@@ -1,12 +1,22 @@
 ﻿namespace Clickstreamer.Sourcing
 {
+    using System;
+    using System.Collections.Generic;
     using Clickstreamer.Events;
     using Clickstreamer.Win32.Keyboard;
 
-    public class KeyboardEventSourcer : EventReaderBase<KeyboardEventArgs>
+    public class KeyboardEventSourcer : EventReaderBase<KeyboardEventArgs>, IEventReader<EventArgs>
     {
-        public KeyboardEventSourcer(IDataObserver<KeyboardEventArgs> observer) : base(observer)
+        private const string ReaderName = "Keyboard Reader";
+
+        public KeyboardEventSourcer(IDataObserver<KeyboardEventArgs> observer) 
+            : base(KeyboardEventSourcer.ReaderName, observer)
         {
+        }
+
+        IEnumerable<EventArgs> IEventReader<EventArgs>.Reduce()
+        {
+            return base.Reduce();
         }
     }
 }

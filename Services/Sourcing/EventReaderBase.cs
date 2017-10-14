@@ -6,16 +6,28 @@
 
     public abstract class EventReaderBase<TEventArgs> : IEventReader<TEventArgs> where TEventArgs : EventArgs
     {
+        private readonly string name;
         private readonly IList<TEventArgs> events;
 
         private readonly IDataObserver<TEventArgs> eventObserver;
 
         private readonly object @lock = new object();
 
-        protected EventReaderBase(IDataObserver<TEventArgs> eventObserver)
+        protected EventReaderBase(string name, IDataObserver<TEventArgs> eventObserver)
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            this.name = name;
             this.events = new List<TEventArgs>();
             this.eventObserver = eventObserver;
+        }
+
+        public string Name
+        {
+            get { return this.name; }
         }
 
         public IEnumerable<TEventArgs> Reduce()

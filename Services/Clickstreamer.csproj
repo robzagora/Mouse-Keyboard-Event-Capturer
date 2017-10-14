@@ -63,12 +63,18 @@
     </ApplicationDefinition>
     <Compile Include="Events\IDataObserver.cs" />
     <Compile Include="Events\IRaiseEvent.cs" />
+    <Compile Include="Processing\ICanStart.cs" />
+    <Compile Include="Processing\ICanStop.cs" />
+    <Compile Include="Processing\IProcess.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Sourcing\EventReaderBase.cs" />
+    <Compile Include="Sourcing\EventSourcerEngine.cs" />
+    <Compile Include="Sourcing\EventsReducedArgs.cs" />
+    <Compile Include="Sourcing\IEventSourcerEngine.cs" />
     <Compile Include="Sourcing\KeyboardEventSourcer.cs" />
     <Compile Include="Sourcing\MouseEventSourcer.cs" />
     <Compile Include="Sourcing\IEventSourcer.cs" />

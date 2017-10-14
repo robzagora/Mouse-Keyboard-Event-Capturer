@@ -68,17 +68,20 @@
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            ThreadedTimer timer = new ThreadedTimer();
-
             // TODO: create DI bindings container 
             // TODO: create IFactory 
-            KeyboardEventSourcer keyboardSourcer = new KeyboardEventSourcer(new Keyboard());
-            MouseEventSourcer mouseSourcer = new MouseEventSourcer(new Mouse());
+            IEventReader<EventArgs> keyboardSourcer = new KeyboardEventSourcer(new Keyboard());
+            IEventReader<EventArgs> mouseSourcer = new MouseEventSourcer(new Mouse());
+
+            EventSourcerEngine engine = new EventSourcerEngine(
+                "Keyboard and Mouse data sourcing engine", 
+                new ThreadedTimer(TimeSpan.FromSeconds(10).TotalMilliseconds),
+                new IEventReader<EventArgs>[] { keyboardSourcer, mouseSourcer });
 
             ContextMenu menu = App.Current.TryFindResource(App.TrayContextMenuControlName) as ContextMenu;
             SystemTrayControl tray = new SystemTrayControl(menu, UiResources.App, App.Name);
 
-            this.mainWindow = new MainWindow(tray, timer, mouseSourcer, keyboardSourcer);
+            this.mainWindow = new MainWindow(engine, tray);
             this.mainWindow.Hide();
         }
     }

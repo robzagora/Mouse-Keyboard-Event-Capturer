@@ -5,53 +5,32 @@
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
-    using System.Timers;
     using System.Windows;
     using Clickstreamer.Sourcing;
-    using Clickstreamer.Timing;
     using Clickstreamer.UI.Controls;
-    using Clickstreamer.Win32.Keyboard;
-    using Clickstreamer.Win32.Mouse;
     using Newtonsoft.Json;
 
     public partial class MainWindow : Window, IDisposable
     {
+        private readonly IEventSourcerEngine eventSourcer;
         private readonly ISystemTrayControl tray;
-        private readonly ITimer timer;
-        private readonly IEventReader<MouseEventArgs> mouseEventReader;
-        private readonly IEventReader<KeyboardEventArgs> keyboardEventReader;
 
-        public MainWindow(
-            ISystemTrayControl tray, 
-            ITimer timer, 
-            IEventReader<MouseEventArgs> mouseEventReader,
-            IEventReader<KeyboardEventArgs> keyboardEventReader)
+        public MainWindow(IEventSourcerEngine eventSourcer, ISystemTrayControl tray)
         {
             this.InitializeComponent();
 
+            this.eventSourcer = eventSourcer ?? throw new ArgumentNullException(nameof(eventSourcer));
             this.tray = tray ?? throw new ArgumentNullException(nameof(tray));
-            this.mouseEventReader = mouseEventReader ?? throw new ArgumentNullException(nameof(mouseEventReader));
-            this.keyboardEventReader = keyboardEventReader ?? throw new ArgumentNullException(nameof(keyboardEventReader));
-            this.timer = timer ?? throw new ArgumentNullException(nameof(timer));
 
             this.tray.SetVisibility(Visibility.Visible);
 
-            this.mouseEventReader.Start();
-            this.keyboardEventReader.Start();
-            this.timer.Start(60000);
+            this.eventSourcer.DataReduced += this.EventSourcer_DataReduced;
+            this.eventSourcer.Start();
         }
-
-        private Func<Task> SaveMouseData => () => this.SaveDataAsync<MouseEventArgs>("mouse", this.mouseEventReader.Reduce());
-
-        private Func<Task> SaveKeyboardData => () => this.SaveDataAsync<KeyboardEventArgs>("keyboard", this.keyboardEventReader.Reduce());
 
         public void Finalise()
         {
-            this.timer.Stop();
-            this.mouseEventReader.Stop();
-            this.keyboardEventReader.Stop();
-
-            Task.WaitAll(this.SaveMouseData(), this.SaveKeyboardData());
+            this.eventSourcer.Stop();
         }
 
         public void Dispose()
@@ -65,15 +44,16 @@
         {
             if (disposing)
             {
-                this.timer.Dispose();
+                this.eventSourcer.Dispose();
                 this.tray.Dispose();
             }
         }
-        
-        private void SaveTimer_Elapsed(object sender, ElapsedEventArgs e)
+
+        private void EventSourcer_DataReduced(object sender, EventsReducedArgs<EventArgs> e)
         {
-            this.SaveMouseData();
-            this.SaveKeyboardData();
+            Console.WriteLine("Event Sourcer Engine performed a reduce job at: " + e.Time + ", total reduced amount: " + e.Data.Count());
+
+            this.SaveDataAsync(e.ReducerName, e.Data);
         }
 
         private Task SaveDataAsync<TData>(string resourceName, IEnumerable<TData> data)
@@ -82,12 +62,12 @@
             {
                 if (data.Any())
                 {
+                    string savePath = Path.Combine(
+                        Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                        resourceName + "-" + DateTime.UtcNow.ToString("dd-M-yyyy--HH-mm-ss"));
+
                     // TODO: abstract out to interface
-                    File.WriteAllText(
-                        Path.Combine(
-                            Environment.GetFolderPath(Environment.SpecialFolder.Desktop), 
-                            resourceName + "-" + DateTime.UtcNow.ToString("dd-M-yyyy--HH-mm-ss")), 
-                        JsonConvert.SerializeObject(data));
+                    File.WriteAllText(savePath, JsonConvert.SerializeObject(data));
                 }
             });
         }
