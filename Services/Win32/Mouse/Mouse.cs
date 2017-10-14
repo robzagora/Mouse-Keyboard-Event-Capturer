@@ -1,25 +1,12 @@
-﻿namespace Clickstreamer.Win32
+﻿namespace Clickstreamer.Win32.Mouse
 {
     using System;
     using System.Runtime.InteropServices;
+    using Clickstreamer.Events;
 
-    public static class Mouse
+    public class Mouse : IDataObserver<MouseEventArgs>
     {
-        // TODO: finish this model
-        public class MouseEventArgs : EventArgs
-        {
-            private int x, y;
-
-            public MouseEventArgs()
-            {
-                this.x = x;
-                this.y = y;
-            }
-
-            public int X { get { return this.x; } }
-
-            public int Y { get { return this.y; } }
-        }
+        private delegate IntPtr LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);
 
         private enum MouseMessages
         {
@@ -34,10 +21,11 @@
         [StructLayout(LayoutKind.Sequential)]
         private struct POINT
         {
-            public int x;
-            public int y;
+            public int X;
+            public int Y;
         }
 
+        // https://msdn.microsoft.com/en-us/library/windows/desktop/ms644970(v=vs.85).aspx
         [StructLayout(LayoutKind.Sequential)]
         private struct MSLLHOOKSTRUCT
         {
@@ -47,39 +35,51 @@
             public uint time;
             public IntPtr dwExtraInfo;
         }
-        
-        private static IntPtr hookPointer = IntPtr.Zero;
+
+        public event EventHandler<MouseEventArgs> OnEvent;
+
+        private IntPtr hookPointer = IntPtr.Zero;
 
         private const int WH_MOUSE_LL = 14, // Installs a hook procedure that monitors low-level mouse input events. For more information, see the LowLevelMouseProc hook procedure.
             WH_MOUSE = 7; // Installs a hook procedure that monitors mouse messages. For more information, see the MouseProc hook procedure.
 
-        public static void Subscribe()
+        private readonly LowLevelMouseProc hookProc;
+
+        public Mouse()
         {
-            Mouse.hookPointer = Interop.SetHook(
+            this.hookProc = this.HookCallback;
+        }
+
+        public void Subscribe()
+        {
+            this.hookPointer = Interop.SetHook(
                 () => Mouse.SetWindowsHookEx(
                     idHook: Mouse.WH_MOUSE_LL,
-                    lpfn: Mouse.HookCallback,
+                    lpfn: hookProc,
                     hMod: Interop.GetModuleHandle(Interop.User32),
                     dwThreadId: 0));
         }
 
-        public static void Unsubscribe()
+        public void Unsubscribe()
         {
-            Interop.UnhookWindowsHookEx(hookPointer);
+            Interop.UnhookWindowsHookEx(this.hookPointer);
         }
 
-        private delegate IntPtr LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);
-
-        private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+        private IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
             if (nCode >= 0)
             {
                 MSLLHOOKSTRUCT hookStruct = (MSLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(MSLLHOOKSTRUCT));
 
-                // TODO: create meaningful event args with all the mouse data
+                this.OnEvent(
+                    this, 
+                    new MouseEventArgs(
+                        hookStruct.pt.X, 
+                        hookStruct.pt.Y, 
+                        hookStruct.time));
             }
 
-            return Interop.CallNextHookEx(hookPointer, nCode, wParam, lParam);
+            return Interop.CallNextHookEx(this.hookPointer, nCode, wParam, lParam);
         }
 
         [DllImport(Interop.User32Module, CharSet = CharSet.Auto, SetLastError = true)]

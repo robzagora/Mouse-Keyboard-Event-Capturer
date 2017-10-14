@@ -1,52 +1,48 @@
-﻿namespace Clickstreamer.Win32
+﻿namespace Clickstreamer.Win32.Keyboard
 {
     using System;
     using System.Runtime.InteropServices;
+    using Clickstreamer.Events;
 
-    public static class Keyboard
+    public class Keyboard : IDataObserver<KeyboardEventArgs>
     {
-        public class KeyboardEventArgs : EventArgs
-        {
-            private int code;
+        private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
 
-            public KeyboardEventArgs(int code)
-            {
-                this.code = code;
-            }
-
-            public int Code { get { return this.code; } }
-        }
-
-        public static event EventHandler<KeyboardEventArgs> KeyboardAction;
+        public event EventHandler<KeyboardEventArgs> OnEvent;
 
         private const int WH_KEYBOARD_LL = 13;
         private const int WM_KEYDOWN = 0x0100;
-        private static IntPtr hookPointer = IntPtr.Zero;
+        private IntPtr hookPointer = IntPtr.Zero;
 
-        public static void Subscribe()
+        private readonly LowLevelKeyboardProc hookProc;
+
+        public Keyboard()
         {
-            Keyboard.hookPointer = Interop.SetHook(
+            this.hookProc = this.HookCallback;
+        }
+
+        public void Subscribe()
+        {
+            this.hookPointer = Interop.SetHook(
                 () => Keyboard.SetWindowsHookEx(
                     idHook: Keyboard.WH_KEYBOARD_LL,
-                    lpfn: Keyboard.HookCallback, 
+                    lpfn: this.hookProc, 
                     hMod: Interop.GetModuleHandle(Interop.User32),
                     dwThreadId: 0));
         }
 
-        public static void Unsubscribe()
+        public void Unsubscribe()
         {
             Interop.UnhookWindowsHookEx(hookPointer);
         }
 
-        private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
-
-        private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+        private IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
             if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN)
             {
                 int vkCode = Marshal.ReadInt32(lParam);
 
-                KeyboardAction(new object(), new KeyboardEventArgs(vkCode));
+                this.OnEvent(this, new KeyboardEventArgs(vkCode));
             }
 
             return Interop.CallNextHookEx(hookPointer, nCode, wParam, lParam);
