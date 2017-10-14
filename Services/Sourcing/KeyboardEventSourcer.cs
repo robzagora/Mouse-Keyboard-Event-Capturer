@@ -16,7 +16,7 @@
 
         IEnumerable<EventArgs> IEventReader<EventArgs>.Reduce()
         {
-            return base.Reduce();
+            return this.Reduce();
         }
     }
 }

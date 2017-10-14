@@ -75,7 +75,7 @@
 
             EventSourcerEngine engine = new EventSourcerEngine(
                 "Keyboard and Mouse data sourcing engine", 
-                new ThreadedTimer(TimeSpan.FromSeconds(10).TotalMilliseconds),
+                new ThreadedTimer(TimeSpan.FromMinutes(1).TotalMilliseconds),
                 new IEventReader<EventArgs>[] { keyboardSourcer, mouseSourcer });
 
             ContextMenu menu = App.Current.TryFindResource(App.TrayContextMenuControlName) as ContextMenu;

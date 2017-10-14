@@ -38,7 +38,7 @@
             {
                 items = new List<TEventArgs>(this.events);
 
-                events.Clear();
+                this.events.Clear();
             }
 
             return items;

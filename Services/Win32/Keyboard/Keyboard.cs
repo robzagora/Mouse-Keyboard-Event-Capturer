@@ -6,20 +6,21 @@
 
     public class Keyboard : IDataObserver<KeyboardEventArgs>
     {
-        private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
-
-        public event EventHandler<KeyboardEventArgs> OnEvent;
-
         private const int WH_KEYBOARD_LL = 13;
         private const int WM_KEYDOWN = 0x0100;
-        private IntPtr hookPointer = IntPtr.Zero;
-
+        
         private readonly LowLevelKeyboardProc hookProc;
 
+        private IntPtr hookPointer = IntPtr.Zero;
+        
         public Keyboard()
         {
             this.hookProc = this.HookCallback;
         }
+
+        private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
+
+        public event EventHandler<KeyboardEventArgs> OnEvent;
 
         public void Subscribe()
         {
@@ -30,11 +31,14 @@
                     hMod: Interop.GetModuleHandle(Interop.User32),
                     dwThreadId: 0));
         }
-
+        
         public void Unsubscribe()
         {
-            Interop.UnhookWindowsHookEx(hookPointer);
+            Interop.UnhookWindowsHookEx(this.hookPointer);
         }
+
+        [DllImport(Interop.User32Module, CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
 
         private IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
@@ -45,10 +49,7 @@
                 this.OnEvent(this, new KeyboardEventArgs(vkCode));
             }
 
-            return Interop.CallNextHookEx(hookPointer, nCode, wParam, lParam);
+            return Interop.CallNextHookEx(this.hookPointer, nCode, wParam, lParam);
         }
-
-        [DllImport(Interop.User32Module, CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
     }
 }
