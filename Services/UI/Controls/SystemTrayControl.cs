@@ -30,10 +30,9 @@
                 MenuActivation = PopupActivationMode.LeftOrRightClick,
                 Visibility = Visibility.Hidden,
                 Icon = icon,
-                ToolTipText = toolTipText
+                ToolTipText = toolTipText,
+                ContextMenu = menu // TODO: abstract out to interface to allow search for meun items
             };
-
-            this.TrayIcon.ContextMenu = menu;
 
             MenuItem close = this.FindMenuItem(menu, App.TrayCloseApplicationMenuItem);
             close.Header = "Terminate";

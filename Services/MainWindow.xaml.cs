@@ -29,6 +29,7 @@
             this.mouseEventReader = mouseEventReader ?? throw new ArgumentNullException(nameof(mouseEventReader));
             this.keyboardEventReader = keyboardEventReader ?? throw new ArgumentNullException(nameof(keyboardEventReader));
 
+            // TODO: abstract out to interface
             this.timer = new Timer(60000);
 
             this.timer.Elapsed += this.SaveTimer_Elapsed;
@@ -81,6 +82,7 @@
             {
                 if (data.Any())
                 {
+                    // TODO: abstract out to interface
                     File.WriteAllText(
                         Path.Combine(
                             Environment.GetFolderPath(Environment.SpecialFolder.Desktop), 

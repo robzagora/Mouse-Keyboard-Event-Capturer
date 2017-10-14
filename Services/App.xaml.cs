@@ -42,6 +42,7 @@
         {
             Exception ex = e.ExceptionObject as Exception;
 
+            // TODO: perform logging to an external location(s)
             if (ex == null)
             {
                 Console.WriteLine("Unhandled exception caught without the exception object!");
@@ -66,6 +67,8 @@
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
+            // TODO: create DI bindings container 
+            // TODO: create IFactory 
             KeyboardEventSourcer keyboardSourcer = new KeyboardEventSourcer(new Keyboard());
             MouseEventSourcer mouseSourcer = new MouseEventSourcer(new Mouse());
 
