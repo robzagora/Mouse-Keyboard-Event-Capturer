@@ -47,6 +47,10 @@
             this.timer.Stop();
             this.mouseEventReader.Stop();
             this.keyboardEventReader.Stop();
+
+            Task.WaitAll(
+                this.SaveDataAsync<MouseEventArgs>("mouse", this.mouseEventReader.Reduce()),
+                this.SaveDataAsync<KeyboardEventArgs>("keyboard", this.keyboardEventReader.Reduce()));
         }
 
         public void Dispose()
@@ -67,17 +71,21 @@
 
         private void SaveTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            this.SaveData<MouseEventArgs>("mouse", this.mouseEventReader.Reduce());
-            this.SaveData<KeyboardEventArgs>("keyboard", this.keyboardEventReader.Reduce());
+            this.SaveDataAsync<MouseEventArgs>("mouse", this.mouseEventReader.Reduce());
+            this.SaveDataAsync<KeyboardEventArgs>("keyboard", this.keyboardEventReader.Reduce());
         }
 
-        private void SaveData<TData>(string resourceName, IEnumerable<TData> data)
+        private Task SaveDataAsync<TData>(string resourceName, IEnumerable<TData> data)
         {
-            Task.Run(() =>
+            return Task.Run(() =>
             {
                 if (data.Any())
                 {
-                    File.WriteAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), resourceName + "-" + DateTime.UtcNow.ToString("dd-M-yyyy--HH-mm-ss")), JsonConvert.SerializeObject(data));
+                    File.WriteAllText(
+                        Path.Combine(
+                            Environment.GetFolderPath(Environment.SpecialFolder.Desktop), 
+                            resourceName + "-" + DateTime.UtcNow.ToString("dd-M-yyyy--HH-mm-ss")), 
+                        JsonConvert.SerializeObject(data));
                 }
             });
         }
