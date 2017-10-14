@@ -72,6 +72,9 @@
     <Compile Include="Sourcing\KeyboardEventSourcer.cs" />
     <Compile Include="Sourcing\MouseEventSourcer.cs" />
     <Compile Include="Sourcing\IEventSourcer.cs" />
+    <Compile Include="Timing\ITimer.cs" />
+    <Compile Include="Timing\ThreadedTimer.cs" />
+    <Compile Include="Timing\TimerEventArgs.cs" />
     <Compile Include="UI\Controls\ISystemTrayControl.cs" />
     <Compile Include="UI\Controls\SystemTrayControl.cs" />
     <Compile Include="UI\Controls\TrayEventArgs.cs" />

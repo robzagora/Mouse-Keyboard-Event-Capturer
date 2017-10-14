@@ -5,6 +5,7 @@
     using System.Windows;
     using System.Windows.Controls;
     using Clickstreamer.Sourcing;
+    using Clickstreamer.Timing;
     using Clickstreamer.UI.Controls;
     using Clickstreamer.Win32.Keyboard;
     using Clickstreamer.Win32.Mouse;
@@ -67,6 +68,8 @@
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
+            ThreadedTimer timer = new ThreadedTimer();
+
             // TODO: create DI bindings container 
             // TODO: create IFactory 
             KeyboardEventSourcer keyboardSourcer = new KeyboardEventSourcer(new Keyboard());
@@ -75,7 +78,7 @@
             ContextMenu menu = App.Current.TryFindResource(App.TrayContextMenuControlName) as ContextMenu;
             SystemTrayControl tray = new SystemTrayControl(menu, UiResources.App, App.Name);
 
-            this.mainWindow = new MainWindow(tray, mouseSourcer, keyboardSourcer);
+            this.mainWindow = new MainWindow(tray, timer, mouseSourcer, keyboardSourcer);
             this.mainWindow.Hide();
         }
     }

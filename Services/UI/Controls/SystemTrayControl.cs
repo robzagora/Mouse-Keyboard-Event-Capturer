@@ -66,11 +66,6 @@
             Application.Current.Shutdown();
         }
 
-        private void Open_Click(object sender, RoutedEventArgs e)
-        {
-            this.RequestApplicationDisplay();
-        }
-
         private void RequestApplicationDisplay()
         {
             this.StateChanged(this, new TrayEventArgs(SystemTrayControl.ShowState));
