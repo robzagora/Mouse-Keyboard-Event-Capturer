@@ -34,11 +34,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Hardcodet.Wpf.TaskbarNotification, Version=1.0.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hardcodet.NotifyIcon.Wpf.1.0.8\lib\net451\Hardcodet.Wpf.TaskbarNotification.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -59,11 +63,18 @@
     </ApplicationDefinition>
     <Compile Include="Events\IDataObserver.cs" />
     <Compile Include="Events\IRaiseEvent.cs" />
+    <Compile Include="Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Sourcing\EventReaderBase.cs" />
-    <Compile Include="Sourcing\EventSourcerBase.cs" />
     <Compile Include="Sourcing\KeyboardEventSourcer.cs" />
     <Compile Include="Sourcing\MouseEventSourcer.cs" />
     <Compile Include="Sourcing\IEventSourcer.cs" />
+    <Compile Include="UI\Controls\ISystemTrayControl.cs" />
+    <Compile Include="UI\Controls\SystemTrayControl.cs" />
+    <Compile Include="UI\Controls\TrayEventArgs.cs" />
     <Compile Include="Win32\Interop.cs" />
     <Compile Include="Win32\Keyboard\Keyboard.cs" />
     <Compile Include="Win32\Keyboard\KeyboardEventArgs.cs" />
@@ -100,6 +111,10 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -110,7 +125,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Subscriptions\" />
+    <Resource Include="Images\CloseApp.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\App.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

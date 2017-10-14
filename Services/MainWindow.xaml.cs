@@ -8,37 +8,63 @@
     using System.Timers;
     using System.Windows;
     using Clickstreamer.Sourcing;
+    using Clickstreamer.UI.Controls;
     using Clickstreamer.Win32.Keyboard;
     using Clickstreamer.Win32.Mouse;
     using Newtonsoft.Json;
 
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, IDisposable
     {
-        private readonly Timer saveTimer;
-
+        private readonly ISystemTrayControl tray;
         private readonly IEventReader<MouseEventArgs> mouseEventReader;
         private readonly IEventReader<KeyboardEventArgs> keyboardEventReader;
 
-        public MainWindow(IEventReader<MouseEventArgs> mouseEventReader, IEventReader<KeyboardEventArgs> keyboardEventReader)
+        private readonly Timer timer;
+
+        public MainWindow(ISystemTrayControl tray, IEventReader<MouseEventArgs> mouseEventReader, IEventReader<KeyboardEventArgs> keyboardEventReader)
         {
             this.InitializeComponent();
 
+            this.tray = tray ?? throw new ArgumentNullException(nameof(tray));
             this.mouseEventReader = mouseEventReader ?? throw new ArgumentNullException(nameof(mouseEventReader));
             this.keyboardEventReader = keyboardEventReader ?? throw new ArgumentNullException(nameof(keyboardEventReader));
 
-            this.saveTimer = new Timer();
+            this.timer = new Timer(60000);
 
-            this.saveTimer.Elapsed += this.SaveTimer_Elapsed;
-            this.saveTimer.AutoReset = true;
-            this.saveTimer.Interval = 60000;
-            this.saveTimer.Enabled = true;
+            this.timer.Elapsed += this.SaveTimer_Elapsed;
+            this.timer.AutoReset = true;
+            this.timer.Enabled = true;
+
+            this.tray.SetVisibility(Visibility.Visible);
 
             this.mouseEventReader.Start();
             this.keyboardEventReader.Start();
-
-            this.saveTimer.Start();
+            this.timer.Start();
         }
-        
+
+        public void Finalise()
+        {
+            this.timer.Stop();
+            this.mouseEventReader.Stop();
+            this.keyboardEventReader.Stop();
+        }
+
+        public void Dispose()
+        {
+            this.Dispose(true);
+
+            GC.SuppressFinalize(this);
+        }
+
+        protected void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                this.timer.Dispose();
+                this.tray.Dispose();
+            }
+        }
+
         private void SaveTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             this.SaveData<MouseEventArgs>("mouse", this.mouseEventReader.Reduce());

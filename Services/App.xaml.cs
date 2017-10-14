@@ -1,18 +1,41 @@
 ﻿namespace Clickstreamer
 {
     using System;
+    using System.Threading;
     using System.Windows;
+    using System.Windows.Controls;
     using Clickstreamer.Sourcing;
+    using Clickstreamer.UI.Controls;
     using Clickstreamer.Win32.Keyboard;
     using Clickstreamer.Win32.Mouse;
+    using UiResources = Clickstreamer.Resources;
 
     public partial class App : Application
     {
+        public const string Name = "Clickstreamer",
+            TrayContextMenuControlName = "TrayContextMenu",
+            TrayCloseApplicationMenuItem = "CloseApplicationMenuItem";
+
+        private const string MutexName = "mouseAndKeyboardDataCapturer";
+
+        private static Mutex mutex;
+
+        private MainWindow mainWindow;
+
         public App()
         {
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            if (Mutex.TryOpenExisting(App.MutexName, out Mutex result))
+            {
+                Application.Current.Shutdown();
+            }
+            else
+            {
+                App.mutex = new Mutex(true, App.MutexName);
 
-            this.Exit += this.App_Exit;
+                AppDomain.CurrentDomain.UnhandledException += this.CurrentDomain_UnhandledException;
+
+                this.Exit += this.App_Exit;
+            }
         }
 
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -31,7 +54,14 @@
 
         private void App_Exit(object sender, ExitEventArgs e)
         {
-            // propogate shutdown call to any running windows
+            if (App.mutex != null)
+            {
+                this.mainWindow.Finalise();
+                this.mainWindow.Dispose();
+
+                App.mutex.ReleaseMutex();
+                App.mutex.Dispose();
+            }
         }
 
         private void Application_Startup(object sender, StartupEventArgs e)
@@ -39,8 +69,11 @@
             KeyboardEventSourcer keyboardSourcer = new KeyboardEventSourcer(new Keyboard());
             MouseEventSourcer mouseSourcer = new MouseEventSourcer(new Mouse());
 
-            MainWindow main = new MainWindow(mouseSourcer, keyboardSourcer);
-            main.Hide();
+            ContextMenu menu = App.Current.TryFindResource(App.TrayContextMenuControlName) as ContextMenu;
+            SystemTrayControl tray = new SystemTrayControl(menu, UiResources.App, App.Name);
+
+            this.mainWindow = new MainWindow(tray, mouseSourcer, keyboardSourcer);
+            this.mainWindow.Hide();
         }
     }
 }
