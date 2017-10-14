@@ -42,14 +42,30 @@
 
         private IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
-            if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN)
+            if (nCode >= 0)
             {
-                int vkCode = Marshal.ReadInt32(lParam);
+                KBDLLHOOKSTRUCT hookStruct = (KBDLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(KBDLLHOOKSTRUCT));
 
-                this.Event(this, new KeyboardEventArgs(vkCode));
+                this.Event(
+                    this, 
+                    new KeyboardEventArgs(
+                        hookStruct.vkCode,
+                        hookStruct.scanCode,
+                        hookStruct.flags,
+                        hookStruct.time));
             }
 
             return Interop.CallNextHookEx(this.hookPointer, nCode, wParam, lParam);
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct KBDLLHOOKSTRUCT
+        {
+            public uint vkCode;
+            public uint scanCode;
+            public uint flags;
+            public uint time;
+            public IntPtr dwExtraInfo;
         }
     }
 }

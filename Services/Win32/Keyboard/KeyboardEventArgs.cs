@@ -4,13 +4,34 @@
 
     public class KeyboardEventArgs : EventArgs
     {
-        private int code;
+        private uint keyCode;
+        private uint scanCode;
+        private uint flags;
+        private uint time;
 
-        public KeyboardEventArgs(int code)
+        public KeyboardEventArgs(uint keyCode, uint scanCode, uint flags, uint time)
         {
-            this.code = code;
+            this.keyCode = keyCode;
         }
 
-        public int Code { get { return this.code; } }
+        public uint KeyCode
+        {
+            get { return this.keyCode; }
+        }
+
+        public uint ScanCode
+        {
+            get { return this.scanCode; }
+        }
+
+        public uint Flags
+        {
+            get { return this.flags; }
+        }
+
+        public uint Time
+        {
+            get { return this.time; }
+        }
     }
 }

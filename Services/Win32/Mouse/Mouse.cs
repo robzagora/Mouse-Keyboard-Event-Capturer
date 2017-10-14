@@ -61,6 +61,8 @@
                     new MouseEventArgs(
                         hookStruct.pt.X,
                         hookStruct.pt.Y,
+                        hookStruct.flags,
+                        hookStruct.mouseData,
                         hookStruct.time));
             }
 
