@@ -34,6 +34,7 @@
         {
             IEnumerable<TEventArgs> items;
 
+            // TODO: not sure about this one, maybe there are better ways to ensure we don't lose any data while we are in reduce stage...
             lock (this.@lock)
             {
                 items = new List<TEventArgs>(this.events);
