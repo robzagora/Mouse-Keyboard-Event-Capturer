@@ -15,12 +15,21 @@
         private readonly IEventSourcerEngine eventSourcer;
         private readonly ISystemTrayControl tray;
 
-        public MainWindow(IEventSourcerEngine eventSourcer, ISystemTrayControl tray)
+        private readonly string dataStorePath;
+
+        public MainWindow(IEventSourcerEngine eventSourcer, ISystemTrayControl tray, string dataStorePath)
         {
             this.InitializeComponent();
 
             this.eventSourcer = eventSourcer ?? throw new ArgumentNullException(nameof(eventSourcer));
             this.tray = tray ?? throw new ArgumentNullException(nameof(tray));
+
+            if (string.IsNullOrWhiteSpace(dataStorePath))
+            {
+                throw new ArgumentNullException(nameof(dataStorePath));
+            }
+
+            this.dataStorePath = dataStorePath;
 
             this.tray.SetVisibility(Visibility.Visible);
 
@@ -63,8 +72,9 @@
                 if (data.Any())
                 {
                     string savePath = Path.Combine(
-                        Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-                        resourceName + "-" + DateTime.UtcNow.ToString("dd-M-yyyy--HH-mm-ss"));
+                        this.dataStorePath,
+                        resourceName,
+                        DateTime.UtcNow.ToString("dd-M-yyyy--HH-mm-ss-fffffff"));
 
                     // TODO: abstract out to interface
                     File.WriteAllText(savePath, JsonConvert.SerializeObject(data));

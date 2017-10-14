@@ -1,6 +1,7 @@
 ﻿namespace Clickstreamer
 {
     using System;
+    using System.IO;
     using System.Threading;
     using System.Windows;
     using System.Windows.Controls;
@@ -68,20 +69,31 @@
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
+            string parentDataSavePath = Path.Combine(Environment.CurrentDirectory, "Sourced Data");
+            Directory.CreateDirectory(parentDataSavePath);
+
             // TODO: create DI bindings container 
             // TODO: create IFactory 
             IEventReader<EventArgs> keyboardSourcer = new KeyboardEventSourcer(new Keyboard());
             IEventReader<EventArgs> mouseSourcer = new MouseEventSourcer(new Mouse());
 
+            var readers = new IEventReader<EventArgs>[] { keyboardSourcer, mouseSourcer };
+
+            foreach (var reader in readers)
+            {
+                Directory.CreateDirectory(Path.Combine(parentDataSavePath, reader.Name));
+            }
+
             EventSourcerEngine engine = new EventSourcerEngine(
                 "Keyboard and Mouse data sourcing engine", 
                 new ThreadedTimer(TimeSpan.FromMinutes(1).TotalMilliseconds),
-                new IEventReader<EventArgs>[] { keyboardSourcer, mouseSourcer });
+                readers);
 
             ContextMenu menu = App.Current.TryFindResource(App.TrayContextMenuControlName) as ContextMenu;
             SystemTrayControl tray = new SystemTrayControl(menu, UiResources.App, App.Name);
 
-            this.mainWindow = new MainWindow(engine, tray);
+
+            this.mainWindow = new MainWindow(engine, tray, parentDataSavePath);
             this.mainWindow.Hide();
         }
     }
