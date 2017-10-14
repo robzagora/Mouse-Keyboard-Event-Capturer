@@ -4,6 +4,6 @@
 
     public interface IRaiseEvent<TEvent> where TEvent : EventArgs
     {
-        event EventHandler<TEvent> OnEvent;
+        event EventHandler<TEvent> Event;
     }
 }

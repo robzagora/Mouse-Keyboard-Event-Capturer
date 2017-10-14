@@ -46,14 +46,14 @@
 
         public void Start()
         {
-            this.eventObserver.OnEvent += this.EventRaiser_OnEvent;
+            this.eventObserver.Event += this.EventRaiser_OnEvent;
             this.eventObserver.Subscribe();
         }
 
         public void Stop()
         {
             this.eventObserver.Unsubscribe();
-            this.eventObserver.OnEvent -= this.EventRaiser_OnEvent;
+            this.eventObserver.Event -= this.EventRaiser_OnEvent;
         }
 
         private void EventRaiser_OnEvent(object sender, TEventArgs e)

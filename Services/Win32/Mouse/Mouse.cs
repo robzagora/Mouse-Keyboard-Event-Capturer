@@ -20,7 +20,7 @@
 
         private delegate IntPtr LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);
 
-        public event EventHandler<MouseEventArgs> OnEvent;
+        public event EventHandler<MouseEventArgs> Event;
 
         private enum MouseMessages
         {
@@ -56,7 +56,7 @@
             {
                 MSLLHOOKSTRUCT hookStruct = (MSLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(MSLLHOOKSTRUCT));
 
-                this.OnEvent(
+                this.Event(
                     this,
                     new MouseEventArgs(
                         hookStruct.pt.X,

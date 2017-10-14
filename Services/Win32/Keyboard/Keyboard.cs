@@ -20,7 +20,7 @@
 
         private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
 
-        public event EventHandler<KeyboardEventArgs> OnEvent;
+        public event EventHandler<KeyboardEventArgs> Event;
 
         public void Subscribe()
         {
@@ -46,7 +46,7 @@
             {
                 int vkCode = Marshal.ReadInt32(lParam);
 
-                this.OnEvent(this, new KeyboardEventArgs(vkCode));
+                this.Event(this, new KeyboardEventArgs(vkCode));
             }
 
             return Interop.CallNextHookEx(this.hookPointer, nCode, wParam, lParam);
