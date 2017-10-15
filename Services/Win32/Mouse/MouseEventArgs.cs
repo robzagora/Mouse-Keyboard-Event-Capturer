@@ -8,13 +8,16 @@
 
         private uint flags, mouseData, time;
 
-        public MouseEventArgs(int x, int y, uint flags, uint mouseData, uint time)
+        private string eventType;
+
+        public MouseEventArgs(int x, int y, uint flags, uint mouseData, uint time, string eventType)
         {
             this.x = x;
             this.y = y;
             this.time = time;
             this.flags = flags;
             this.mouseData = mouseData;
+            this.eventType = eventType;
         }
 
         public int X
@@ -40,6 +43,11 @@
         public uint Time
         {
             get { return this.time; }
+        }
+
+        public string EventType
+        {
+            get { return this.eventType; }
         }
     }
 }

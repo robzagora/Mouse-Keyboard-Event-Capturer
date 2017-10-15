@@ -63,6 +63,7 @@
     </ApplicationDefinition>
     <Compile Include="Events\IDataObserver.cs" />
     <Compile Include="Events\IRaiseEvent.cs" />
+    <Compile Include="Extensions\EnumerationExtensions.cs" />
     <Compile Include="Processing\ICanStart.cs" />
     <Compile Include="Processing\ICanStop.cs" />
     <Compile Include="Processing\IProcess.cs" />

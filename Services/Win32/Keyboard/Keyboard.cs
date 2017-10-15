@@ -3,6 +3,7 @@
     using System;
     using System.Runtime.InteropServices;
     using Clickstreamer.Events;
+    using Clickstreamer.Extensions;
 
     public class Keyboard : IDataObserver<KeyboardEventArgs>
     {
@@ -21,6 +22,14 @@
         private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
 
         public event EventHandler<KeyboardEventArgs> Event;
+
+        private enum KeyboardMessages
+        {
+            KeyDown = 0x0100, // WM_KEYDOWN
+            KeyUp = 0x0101, // WM_KEYUP
+            SysKeyDown = 0x0104, // WM_SYSKEYDOWN
+            SysKeyUp = 0x0105 // WM_SYSKEYUP
+        }
 
         public void Subscribe()
         {
@@ -44,6 +53,7 @@
         {
             if (nCode >= 0)
             {
+                KeyboardMessages keyType = (KeyboardMessages)Marshal.ReadInt32(wParam);
                 KBDLLHOOKSTRUCT hookStruct = (KBDLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(KBDLLHOOKSTRUCT));
 
                 this.Event(
@@ -52,7 +62,8 @@
                         hookStruct.vkCode,
                         hookStruct.scanCode,
                         hookStruct.flags,
-                        hookStruct.time));
+                        hookStruct.time,
+                        keyType.GetName()));
             }
 
             return Interop.CallNextHookEx(this.hookPointer, nCode, wParam, lParam);

@@ -3,6 +3,7 @@
     using System;
     using System.Runtime.InteropServices;
     using Clickstreamer.Events;
+    using Clickstreamer.Extensions;
 
     public class Mouse : IDataObserver<MouseEventArgs>
     {
@@ -54,6 +55,7 @@
         {
             if (nCode >= 0)
             {
+                MouseMessages message = (MouseMessages)Marshal.ReadInt32(wParam);
                 MSLLHOOKSTRUCT hookStruct = (MSLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(MSLLHOOKSTRUCT));
 
                 this.Event(
@@ -63,7 +65,8 @@
                         hookStruct.pt.Y,
                         hookStruct.flags,
                         hookStruct.mouseData,
-                        hookStruct.time));
+                        hookStruct.time,
+                        message.GetName()));
             }
 
             return Interop.CallNextHookEx(this.hookPointer, nCode, wParam, lParam);
